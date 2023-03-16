@@ -1,0 +1,28 @@
+groups:
+
+  - name: "DediCaas - Self monitoring"
+    rules:
+      - alert: prometheus_target_missing
+        for: 5m
+        expr: up == 0
+        labels:
+          object_class: DK_SERVICE
+          source: dedicaas
+        annotations:
+          summary: "{{ $labels.job }} target missing on {{ $labels.instance }}"
+          description: Prometheus target for job `{{ $labels.job }}` on instance `{{ $labels.instance }}` is missing
+          severity: WARNING
+
+  - name: "Application"
+    rules:
+      - alert: application_404
+        for: 10s
+        expr: sum(http_server_requests_seconds_count{stack_name="application", status="404"}) by (service_name) > 10
+        labels:
+          object_class: DK_SERVICE
+          source: application
+        annotations:
+          summary: Too many 404 on {{ $labels.service_name }}
+          description: There were too many 404 errors on service `{{ $labels.service_name }}` ({{ $value }})
+          severity: CRITICAL
+

@@ -1,0 +1,24 @@
+name: ${node_name}
+
+filebeat.config.inputs:
+  enabled: true
+  path: /usr/share/filebeat/inputs.d/*.yml
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+fields_under_root: false
+
+processors:
+- add_fields:
+    target: lgr
+    fields:
+      meta.basicat: doc
+      meta.application: sample
+      meta.plateform: training
+      meta.nodename: ${node_name}
+
+output.console:
+  pretty: true

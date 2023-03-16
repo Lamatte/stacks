@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  observable:
+    image: mchauvin/toolbox:0.8.1
+    networks:
+      - clusternetwork
+    deploy:
+      mode: replicated
+      replicas: 2
+    ports:
+      - "8080:8080"
+
+networks:
+  clusternetwork:
+    external: true

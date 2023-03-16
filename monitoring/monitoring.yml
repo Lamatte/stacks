@@ -1,0 +1,103 @@
+version: "3.7"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    environment:
+      - "node_name={{.Node.Hostname}}"
+      - "node_id={{.Node.ID}}"
+    configs:
+      - source: prometheus
+        target: /etc/prometheus/config.yml
+        mode: 444
+      - source: alert-rules
+        target: /etc/prometheus/default.rules.yml
+        mode: 444
+    command:
+      - '--config.file=/etc/prometheus/config.yml'
+      - '--web.enable-lifecycle'
+      - '--web.external-url=http://0.0.0.0:9090/prometheus'
+      - '--web.enable-admin-api'
+      - '--web.route-prefix=/prometheus'
+      - '--storage.tsdb.retention.time=10m'
+    user: root
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+    networks:
+      - monitornetwork
+      - clusternetwork
+    ports:
+      - "9090:9090"
+
+  alert-manager:
+    image: prom/alertmanager:v0.25.0
+    environment:
+      - "node_name={{.Node.Hostname}}"
+      - "node_id={{.Node.ID}}"
+    configs:
+      - source: alert-manager
+        target: /etc/alertmanager/config.yml
+        mode: 444
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - monitornetwork
+      - clusternetwork
+    ports:
+      - "9093:9093"
+
+  grafana:
+    image: grafana/grafana:9.3.6
+    secrets:
+      - grafana-password
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - "node_name={{.Node.Hostname}}"
+      - "node_id={{.Node.ID}}"
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana-password
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=$grafana_root_url
+    networks:
+      - monitornetwork
+      - clusternetwork
+    configs:
+      - source: grafana-datasources
+        target: /etc/grafana/provisioning/datasources/datasources.yaml
+          #- source: grafana-dashboards
+          #target: /etc/grafana/provisioning/dashboards/dashboards.yaml
+    ports:
+      - "3000:3000"
+
+configs:
+  prometheus:
+    file: prometheus.yml
+  alert-rules:
+    file: alert-rules.yml
+  alert-manager:
+    file: alertmanager.yml
+  grafana-datasources:
+    file: grafana-datasources.yml
+  grafana-dashboards:
+    file: grafana-dashboards.yml
+
+secrets:
+  grafana-password:
+    external: true
+
+networks:
+  monitornetwork:
+    external: true
+  clusternetwork:
+    external: true

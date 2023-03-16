@@ -1,0 +1,9 @@
+global:
+  resolve_timeout: 20s
+route:
+  repeat_interval: 1d
+  receiver: 'webhook'
+receivers:
+  - name: 'webhook'
+    webhook_configs:
+      - url: 'https://fake'
