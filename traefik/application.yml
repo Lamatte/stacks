@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  toolbox:
+    image: mchauvin/toolbox:0.8.1
+    environment:
+      - "task_name={{.Service.Name}}.{{.Task.Slot}}"
+      - "node_name={{.Node.Hostname}}"
+      - "node_id={{.Node.ID}}"
+    networks:
+      - clusternetwork
+    deploy:
+      mode: replicated
+      replicas: 2
+
+networks:
+  clusternetwork:
+    external: true
