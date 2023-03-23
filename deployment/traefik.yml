@@ -1,0 +1,69 @@
+version: "3.7"
+
+services:
+  traefik:
+    image: traefik:v2.9
+    labels:
+      co.elastic.logs/enabled: "true"
+    environment:
+      - "node_id={{.Node.ID}}"
+      - "node_name={{.Node.Hostname}}"
+    command:
+      - --providers.docker
+      - --providers.docker.swarmmode=true
+      - --providers.docker.watch=true
+      - --providers.docker.exposedbydefault=false
+      - --accesslog
+      - --global.sendanonymoususage=false
+      - --global.checknewversion=false
+      - --entrypoints.web.address=:80
+      - --log.level=debug
+      - --api.dashboard=true
+      - --providers.file.directory=/etc/traefik
+      - --ping.manualrouting=true
+      - --ping=true
+      - --metrics
+      - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+      - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.filepath=/var/logs/traefik/access.log
+      - --accesslog.fields.headers.names.X-Forwarded-For=keep
+    ports:
+      - published: 80
+        target: 80
+        mode: host
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role==manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$9zhpP/PtRtLLl3i1aCNH7OzEX95xZ2lkNtHG8whLIqNoh.fyNW9rS"
+        - "traefik.http.routers.traefik-http.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+        - "traefik.http.routers.traefik-http.entrypoints=web"
+        - "traefik.http.routers.traefik-http.middlewares=traefik-auth"
+        - "traefik.http.routers.traefik-http.service=api@internal"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+        - "traefik.http.routers.traefik-ping.rule=PathPrefix(`/ping`)"
+        - "traefik.http.routers.traefik-ping.entrypoints=web"
+        - "traefik.http.routers.traefik-ping.service=ping@internal"
+    networks:
+      - clusternetwork
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-access-logs:/var/logs/traefik
+
+volumes:
+  traefik-access-logs:
+    driver: 'local'
+
+networks:
+  clusternetwork:
+    external: true
+
+
+
