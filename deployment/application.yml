@@ -18,12 +18,11 @@ services:
         - traefik.docker.network=clusternetwork
         - traefik.docker.lbswarm=true
         - traefik.http.routers.toolbox-${color}-router.entrypoints=web
-        - traefik.http.routers.toolbox-${color}-router.rule=PathPrefix(`/toolbox`)
-        - traefik.http.middlewares.toolbox-stripprefix.stripprefix.prefixes=/toolbox
-        - traefik.http.routers.toolbox-${color}-router.middlewares=toolbox-stripprefix
+        - traefik.http.routers.toolbox-${color}-router.rule=PathPrefix(`/${context_path}`)
+        - traefik.http.middlewares.toolbox-${color}-stripprefix.stripprefix.prefixes=/${context_path}
+        - traefik.http.routers.toolbox-${color}-router.middlewares=toolbox-${color}-stripprefix
         - traefik.http.routers.toolbox-${color}-router.service=toolbox-${color}-service
         - traefik.http.services.toolbox-${color}-service.loadbalancer.server.port=8080
-        - traefik.http.routers.toolbox-${color}-router.priority=${priority}
  
 networks:
   clusternetwork:
