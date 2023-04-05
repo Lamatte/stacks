@@ -4,11 +4,11 @@ services:
   toolbox:
     image: mchauvin/toolbox:${version}
     healthcheck:
-      test: ["CMD", "curl", "-v", "--silent", "http://localhost:8080/actuator/health", "2>&1", "|", "grep", "UP"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 30
+      start_period: 40s
 
     environment:
       - "task_name={{.Service.Name}}.{{.Task.Slot}}"
