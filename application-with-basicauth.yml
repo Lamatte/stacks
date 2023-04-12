@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  toolbox:
+    image: mchauvin/toolbox:0.8.1
+    healthcheck:
+      start_period: 180s
+    environment:
+      - "task_name={{.Service.Name}}.{{.Task.Slot}}"
+      - "node_name={{.Node.Hostname}}"
+      - "node_id={{.Node.ID}}"
+    networks:
+      - clusternetwork
+    deploy:
+      mode: replicated
+      replicas: 2
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=clusternetwork
+        - traefik.docker.lbswarm=true
+        - traefik.http.routers.my-app-router-http.entrypoints=web
+        - traefik.http.routers.my-app-router-http.rule=PathPrefix(`/toolbox`)
+        - traefik.http.middlewares.my-app-stripprefix.stripprefix.prefixes=/toolbox
+        - traefik.http.middlewares.my-app-auth.basicauth.users=admin:$$2y$$05$$7UiOSegW1DO2uqd/97NMaeQCHrJilbYBjp/eoetmCyF24jsEzDiO2
+        - traefik.http.routers.my-app-router-http.middlewares=my-app-stripprefix,my-app-auth
+        - traefik.http.routers.my-app-router-http.service=my-app-service-http
+        - traefik.http.services.my-app-service-http.loadbalancer.server.port=8080
+
+networks:
+  clusternetwork:
+    external: true
