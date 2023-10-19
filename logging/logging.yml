@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   filebeat:
-    image: elastic/filebeat:8.6.2
+    image: dockerproxy.popfr1.repos.tech.orange/elastic/filebeat:8.10.3
     labels:
       co.elastic.logs/enabled: "false"
     networks:

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   toolbox:
-    image: mchauvin/toolbox:0.8.1
+    image: dedicaas-virt-docker-stable.popfr1.repos.tech.orange/toolbox:0.8.1
     healthcheck:
       start_period: 180s
     environment:

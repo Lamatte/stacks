@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   prometheus:
-    image: prom/prometheus:v2.42.0
+    image: dockerproxy.popfr1.repos.tech.orange/prom/prometheus:v2.47.1
     environment:
       - "node_name={{.Node.Hostname}}"
       - "node_id={{.Node.ID}}"
@@ -34,7 +34,7 @@ services:
       - "9090:9090"
 
   alert-manager:
-    image: prom/alertmanager:v0.25.0
+    image: dockerproxy.popfr1.repos.tech.orange/prom/alertmanager:v0.26.0
     environment:
       - "node_name={{.Node.Hostname}}"
       - "node_id={{.Node.ID}}"
@@ -56,7 +56,7 @@ services:
       - "9093:9093"
 
   grafana:
-    image: grafana/grafana:9.3.6
+    image: dockerproxy.popfr1.repos.tech.orange/grafana/grafana:10.1.5
     secrets:
       - grafana-password
     deploy:

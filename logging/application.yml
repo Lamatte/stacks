@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   talkative:
-    image: alpine
+    image: dockerproxy.popfr1.repos.tech.orange/alpine
     command: 'sh -c "while true; do echo \"[$$(date)] This is a spurious and useless message\"; sleep 2; done"'
     networks:
       - clusternetwork
@@ -11,7 +11,7 @@ services:
       replicas: 2
 
   significant:
-    image: alpine
+    image: dockerproxy.popfr1.repos.tech.orange/alpine
     command: 'sh -c "cpt=1; while true; do echo \"[$$(date)] Message #$$cpt:\"; echo \"  This is message number #$$cpt\"; cpt=$$((cpt+1)); sleep 10; done"'
     networks:
       - clusternetwork

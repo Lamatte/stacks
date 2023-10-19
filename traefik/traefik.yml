@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   traefik:
-    image: traefik:v2.9
+    image: dockerproxy.popfr1.repos.tech.orange/traefik:v2.10.4
     labels:
       co.elastic.logs/enabled: "true"
     environment:
